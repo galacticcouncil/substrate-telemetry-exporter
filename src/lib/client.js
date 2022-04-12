@@ -52,9 +52,6 @@ class Client {
     return new Promise((resolve, reject) => {
       this.socket.onopen = () => {
         console.log(`Conected to substrate-telemetry on ${this.address}`);
-        this.cfg.subscribe.chains.forEach((chain) => {
-          this._subscribe(chain);
-        });
         resolve();
       };
 
@@ -93,12 +90,12 @@ class Client {
 
   _handle(message, currentTimestamp) {
     const { action, payload } = message;
+    const {chain} = this;
 
     switch(action) {
     case Actions.AddedChain:
       {
-        const chain = payload[0];
-        this._subscribe(chain);
+        this._subscribe(payload);
       }
       break;
 
@@ -129,10 +126,10 @@ class Client {
       {
         const blockNumber = payload[0];
 
-        bestBlock.set(blockNumber);
+        bestBlock.set({chain}, blockNumber);
 
         const productionTime = payload[1];
-        blockProductionTime.observe(productionTime);
+        blockProductionTime.observe({chain}, productionTime);
 
         this.timestamps[blockNumber] = productionTime;
 
@@ -147,17 +144,9 @@ class Client {
         const {name, version, node, runtime, arch, id} = this.nodes[nodeID];
 
         const propagationTime = payload[1][4] / 1000;
-        blockPropagationTime.observe({ name, version, node, runtime, arch, id }, propagationTime);
+        blockPropagationTime.observe({ chain, name, version, node, runtime, arch, id }, propagationTime);
         console.log(`propagationTime at node ${nodeID} : ${propagationTime}`);
         console.log(`Block ${blockNumber} imported at node ${nodeID}`);
-      }
-      break;
-
-    case Actions.FinalizedBlock:
-      {
-        const blockNumber = payload[1];
-
-        console.log(`New finalized block ${blockNumber}`)
       }
       break;
 
@@ -165,14 +154,14 @@ class Client {
       {
         const blockNumber = payload[0];
 
-        bestFinalized.set(blockNumber);
+        bestFinalized.set({chain}, blockNumber);
 
         const productionTime = this.timestamps[blockNumber];
 
         if (productionTime) {
           const finalityTime = (currentTimestamp - productionTime) / 1000;
           console.log(`finality time for ${blockNumber}: ${finalityTime}`)
-          timeToFinality.observe(finalityTime);
+          timeToFinality.observe({chain}, finalityTime);
 
           delete this.timestamps[blockNumber];
         }
@@ -199,16 +188,13 @@ class Client {
     return name;
   }
 
-  _extractAddressFromAfgPayload(payload) {
-    return payload[3].replace(/"/g, '');
-  }
-
-  _subscribe(chain) {
-    if(this.cfg.subscribe.chains.includes(chain)) {
-      this.socket.send(`subscribe:${chain}`);
+  _subscribe([chain, hash]) {
+    if(!this.subscribed && this.cfg.subscribe.chains.includes(hash)) {
+      this.subscribed = true;
+      this.chain = chain;
+      this.socket.send(`subscribe:${hash}`);
       console.log(`Subscribed to chain '${chain}'`);
-
-      this.socket.send(`send-finality:${chain}`);
+      this.socket.send(`send-finality:${hash}`);
       console.log('Requested finality data');
     }
   }

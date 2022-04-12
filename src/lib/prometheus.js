@@ -17,29 +17,33 @@ module.exports = {
 
 
   timeToFinality: new promClient.Histogram({
-    name: 'polkadot_block_finality_seconds',
+    name: 'substrate_telemetry_block_finality_seconds',
     help: 'Time from block production to block finalized',
-    buckets: [10, 14, 18, 22, 26, 30]
+    buckets: [10, 14, 18, 22, 26, 30],
+    labelNames: ['chain']
   }),
 
   bestBlock: new promClient.Gauge({
-    name: 'polkadot_best_block',
-    help: 'Maximum height of the chain'
+    name: 'substrate_telemetry_best_block',
+    help: 'Maximum height of the chain',
+    labelNames: ['chain']
   }),
 
   bestFinalized: new promClient.Gauge({
-    name: 'polkadot_best_finalized',
-    help: 'Highest finalized block'
+    name: 'substrate_telemetry_best_finalized',
+    help: 'Highest finalized block',
+    labelNames: ['chain']
   }),
 
   blockProductionTime: new promClient.Histogram({
-    name: 'polkadot_block_production_seconds',
-    help: 'Time to produce a block as reported by telemetry'
+    name: 'substrate_telemetry_block_production_seconds',
+    help: 'Time to produce a block as reported by telemetry',
+    labelNames: ['chain']
   }),
 
   blockPropagationTime: new promClient.Histogram({
-    name: 'polkadot_block_propagation_seconds',
+    name: 'substrate_telemetry_block_propagation_seconds',
     help: 'Time to receive a block as reported by telemetry',
-    labelNames: ['name', 'version', 'node', 'runtime', 'arch', 'id']
+    labelNames: ['chain','name', 'version', 'node', 'runtime', 'arch', 'id']
   }),
 }
