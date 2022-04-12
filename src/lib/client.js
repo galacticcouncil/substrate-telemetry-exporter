@@ -31,7 +31,7 @@ const Actions = {
   AfgAuthoritySet      : 19
 };
 
-const DEFAULT_TELEMETRY_HOST = 'ws://localhost:8000/feed';
+const DEFAULT_TELEMETRY_HOST = 'wss://telemetry.hydradx.io:9001/feed';
 
 class Client {
   constructor(cfg) {
@@ -109,7 +109,7 @@ class Client {
 
         this.nodes[nodeID] = nodeName;
 
-        console.log(`New node ${nodeName} (${nodeID})`);
+        console.log(`New node ${nodeName} (${nodeID})`, payload);
       }
       break;
 
