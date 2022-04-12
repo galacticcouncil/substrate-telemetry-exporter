@@ -40,6 +40,6 @@ module.exports = {
   blockPropagationTime: new promClient.Histogram({
     name: 'polkadot_block_propagation_seconds',
     help: 'Time to receive a block as reported by telemetry',
-    labelNames: ['node']
+    labelNames: ['name', 'version', 'node', 'runtime', 'arch', 'id']
   }),
 }

@@ -105,18 +105,19 @@ class Client {
     case Actions.AddedNode:
       {
         const nodeID = payload[0];
-        const nodeName = payload[1][0];
+        const [name,,tag,,id] = payload[1];
+        const [version,, runtime,, node, arch] = tag.split(' ');
 
-        this.nodes[nodeID] = nodeName;
+        this.nodes[nodeID] = {name, version, node, runtime, arch, id};
 
-        console.log(`New node ${nodeName} (${nodeID})`, payload);
+        console.log(`New node`, this.nodes[nodeID]);
       }
       break;
 
     case Actions.RemovedNode:
       {
         const nodeID = payload;
-        const nodeName = this.nodes[nodeID];
+        const {nodeName} = this.nodes[nodeID];
 
         delete this.nodes[nodeID];
 
@@ -143,10 +144,10 @@ class Client {
       {
         const blockNumber = payload[1][0];
         const nodeID = payload[0];
-        const node = this.nodes[nodeID];
+        const {name, version, node, runtime, arch, id} = this.nodes[nodeID];
 
         const propagationTime = payload[1][4] / 1000;
-        blockPropagationTime.observe({ node }, propagationTime);
+        blockPropagationTime.observe({ name, version, node, runtime, arch, id }, propagationTime);
         console.log(`propagationTime at node ${nodeID} : ${propagationTime}`);
         console.log(`Block ${blockNumber} imported at node ${nodeID}`);
       }
