@@ -173,22 +173,6 @@ class Client {
     }
   }
 
-  _watchedValidatorName(address) {
-    if(!this.cfg.subscribe ||
-       !this.cfg.subscribe.validators ||
-       this.cfg.subscribe.validators.length === 0) {
-      return "";
-    }
-    let name = "";
-    this.cfg.subscribe.validators.forEach((validator) => {
-      if(address === validator.address) {
-        name = validator.name;
-        return;
-      }
-    })
-    return name;
-  }
-
   _subscribe([chain, hash]) {
     if(!this.subscribed && this.cfg.subscribe.chains.includes(hash)) {
       this.subscribed = true;
